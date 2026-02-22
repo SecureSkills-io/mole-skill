@@ -1,11 +1,22 @@
 ---
 name: mole
-description: Install and use Mole (mo) - a powerful macOS system cleaning and optimization CLI tool. Use when the user needs to clean caches, uninstall apps completely, analyze disk usage, optimize system performance, purge build artifacts, or monitor system health on macOS. Handles installation via Homebrew or install script, and all Mole commands including clean, uninstall, optimize, analyze, status, purge, and installer cleanup.
+description: Install and use Mole (mo) - a powerful macOS system cleaning and optimization CLI tool. Use when the user needs to clean caches, uninstall apps completely, analyze disk usage, optimize system performance, purge build artifacts, or monitor system health on macOS. Handles installation via Homebrew or install script, and all Mole commands including clean, uninstall, optimize, analyze, status, purge, and installer cleanup. ALWAYS uses dry-run first for destructive operations, asks for user approval, then executes.
 ---
 
 # Mole Skill
 
 Mole (`mo`) is a comprehensive macOS system cleaning and optimization tool that combines features of CleanMyMac, AppCleaner, DaisyDisk, and iStat Menus into a single binary.
+
+## Safety-First Workflow (REQUIRED)
+
+For ALL destructive operations (clean, uninstall, purge, installer), you MUST follow this workflow:
+
+1. **DRY-RUN FIRST:** Always run with `--dry-run` to preview what will happen
+2. **SHOW PREVIEW:** Present the dry-run output to the user clearly
+3. **ASK FOR APPROVAL:** Wait for explicit user confirmation before proceeding
+4. **EXECUTE:** Only then run the actual command without `--dry-run`
+
+**Never skip the dry-run step for destructive operations.**
 
 ## Installation
 
@@ -51,13 +62,18 @@ mo --version          # Show installed version
 
 ### Deep System Cleanup
 
-Removes caches, logs, browser leftovers, and temporary files.
+**WORKFLOW:**
+1. Run `mo clean --dry-run` to preview
+2. Show output to user
+3. Ask: "Proceed with cleanup? (yes/no)"
+4. If yes: Run `mo clean`
 
 ```bash
-mo clean                    # Interactive cleanup
-mo clean --dry-run          # Preview what would be cleaned
-mo clean --whitelist        # Manage protected caches
-mo clean --dry-run --debug  # Detailed preview with risk levels
+# Step 1: Preview (ALWAYS do this first)
+mo clean --dry-run
+
+# Step 4: Execute (only after user approval)
+mo clean
 ```
 
 **What gets cleaned:**
@@ -68,9 +84,19 @@ mo clean --dry-run --debug  # Detailed preview with risk levels
 - App-specific caches (Spotify, Dropbox, Slack)
 - Trash
 
+**Additional options:**
+```bash
+mo clean --whitelist        # Manage protected caches
+mo clean --dry-run --debug  # Detailed preview with risk levels
+```
+
 ### Smart App Uninstaller
 
-Thoroughly removes apps along with launch agents, preferences, and hidden remnants.
+**WORKFLOW:**
+1. Run `mo uninstall` (interactive - shows what will be removed)
+2. Present the list of apps and files to be removed
+3. Ask: "Proceed with uninstallation? (yes/no)"
+4. If yes: User confirms in the interactive UI
 
 ```bash
 mo uninstall                # Interactive uninstaller
@@ -78,13 +104,18 @@ mo uninstall                # Interactive uninstaller
 
 ### System Optimization
 
-Refreshes system caches, rebuilds databases, and restarts services.
+**WORKFLOW:**
+1. Run `mo optimize --dry-run` to preview
+2. Show output to user
+3. Ask: "Proceed with optimization? (yes/no)"
+4. If yes: Run `mo optimize`
 
 ```bash
-mo optimize                 # Run optimizations
-mo optimize --dry-run       # Preview optimization actions
-mo optimize --debug         # Run with detailed logs
-mo optimize --whitelist     # Manage protected optimization rules
+# Step 1: Preview
+mo optimize --dry-run
+
+# Step 4: Execute
+mo optimize
 ```
 
 **What gets optimized:**
@@ -97,7 +128,7 @@ mo optimize --whitelist     # Manage protected optimization rules
 
 ### Disk Space Analyzer
 
-Visualizes disk usage with an interactive TUI.
+Safe/non-destructive - no dry-run needed.
 
 ```bash
 mo analyze                  # Analyze home directory
@@ -109,13 +140,13 @@ mo analyze ~/Documents      # Analyze specific path
 - `↑↓←→` or `h/j/k/l` - Navigate
 - `o` - Open directory
 - `f` - Show in Finder
-- `⌫` - Delete item
+- `⌫` - Delete item (will ask for confirmation)
 - `l` - Show large files only
 - `q` - Quit
 
 ### Live System Status
 
-Real-time dashboard with system health score and performance metrics.
+Safe/non-destructive - read-only dashboard.
 
 ```bash
 mo status                   # Live system dashboard
@@ -127,7 +158,11 @@ mo status                   # Live system dashboard
 
 ### Project Artifact Purge
 
-Clean old build artifacts from projects (node_modules, target, build, dist, etc.).
+**WORKFLOW:**
+1. Run `mo purge` to see the interactive list
+2. Present what will be removed (projects, sizes)
+3. Ask: "Proceed with purging selected artifacts? (yes/no)"
+4. If yes: User confirms in the interactive UI
 
 ```bash
 mo purge                    # Interactive purge
@@ -145,7 +180,11 @@ echo "~/Work/ClientA" >> ~/.config/mole/purge_paths
 
 ### Installer Cleanup
 
-Find and remove large installer files scattered across Downloads, Desktop, Homebrew caches, etc.
+**WORKFLOW:**
+1. Run `mo installer` to see the interactive list
+2. Present what will be removed (installers, sizes, locations)
+3. Ask: "Proceed with removing selected installers? (yes/no)"
+4. If yes: User confirms in the interactive UI
 
 ```bash
 mo installer                # Interactive installer cleanup
@@ -157,6 +196,7 @@ mo installer                # Interactive installer cleanup
 - **Whitelist:** Protect specific paths from cleanup with `--whitelist`
 - **Operation log:** All file operations logged to `~/.config/mole/operations.log`
 - **Recent project protection:** Recent projects are unselected by default in purge
+- **User confirmation:** Always ask before destructive operations
 
 ## Environment Variables
 
